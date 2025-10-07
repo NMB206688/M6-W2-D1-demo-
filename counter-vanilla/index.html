@@ -2,66 +2,80 @@
 <html>
   <head>
     <title>Redux basic example</title>
+    <!-- Load Redux from CDN so we can use Redux.createStore below -->
     <script src="https://unpkg.com/redux@4.2.1/dist/redux.min.js"></script>
   </head>
   <body>
     <div>
       <p>
+        <!-- This <span> is where we will show the current count -->
         Clicked: <span id="value">0</span> times
+        <!-- Four buttons we will hook up with JS click handlers -->
         <button id="increment">+</button>
         <button id="decrement">-</button>
         <button id="incrementIfOdd">Increment if odd</button>
         <button id="incrementAsync">Increment async</button>
       </p>
     </div>
+
     <script>
-      // write function here
+      // ---------------- Reducer: describes how state changes ----------------
       function counter(state, action) {
+        // When the store starts up, Redux calls the reducer with state=undefined.
+        // We return the initial state (0) in that case.
         if (typeof state === 'undefined') {
           return 0
         }
+
+        // Decide the next state based on the action's type
         switch (action.type) {
           case 'INCREMENT':
-            return state + 1
+            return state + 1   // add 1 to the current state
           case 'DECREMENT':
-            return state - 1
+            return state - 1   // subtract 1 from the current state
           default:
-            return state
+            return state       // no change for unknown actions
         }
       }
 
-      // setup variables and render function here
-      var store = Redux.createStore(counter)
-      var valueEl = document.getElementById('value')
+      // --------------- Create the store + render the current value ----------
+      var store = Redux.createStore(counter)     // Make a Redux store using our reducer
+      var valueEl = document.getElementById('value') // Grab the <span> where we print the count
 
       function render() {
+        // Read the current state from the store and put it into the page
         valueEl.innerHTML = store.getState().toString()
       }
 
-      render()
-      store.subscribe(render)
+      render()                 // Draw the initial value once (0)
+      store.subscribe(render)  // Re-run render() every time the state changes
 
-      // setup document tags here
+      // ---------------------- Wire up the buttons ---------------------------
+
+      // "+" button: dispatch an INCREMENT action
       document.getElementById('increment')
         .addEventListener('click', function () {
-          store.dispatch({ type: 'INCREMENT' })
+          store.dispatch({ type: 'INCREMENT' })  // reducer runs -> state + 1 -> render updates
         })
 
+      // "-" button: dispatch a DECREMENT action
       document.getElementById('decrement')
         .addEventListener('click', function () {
-          store.dispatch({ type: 'DECREMENT' })
+          store.dispatch({ type: 'DECREMENT' })  // reducer runs -> state - 1 -> render updates
         })
 
+      // "Increment if odd" button: only increment when current value is odd
       document.getElementById('incrementIfOdd')
         .addEventListener('click', function () {
-          if (store.getState() % 2 !== 0) {
-            store.dispatch({ type: 'INCREMENT' })
+          if (store.getState() % 2 !== 0) {      // check current state first
+            store.dispatch({ type: 'INCREMENT' })// if odd, increment
           }
         })
 
+      // "Increment async" button: wait 1 second, then increment
       document.getElementById('incrementAsync')
         .addEventListener('click', function () {
-          setTimeout(function () {
+          setTimeout(function () {               // delay the action by 1000ms
             store.dispatch({ type: 'INCREMENT' })
           }, 1000)
         })
